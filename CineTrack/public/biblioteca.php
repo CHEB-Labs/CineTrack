@@ -21,7 +21,7 @@ $filmes = buscarFilmes($pdo);
 
 <body>
     <header>
-        <a href="index.html"><img src="_img/Logo.png" class="logo"></a>
+        <a href="index.php"><img src="_img/Logo.png" class="logo"></a>
         <div class="barra-pesquisa">
             <img src="_img/search.png" alt="">
             <p>Pesquisar filmes ou séries...</p>

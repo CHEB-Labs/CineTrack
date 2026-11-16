@@ -63,7 +63,7 @@ $destaques = $pdo->query("SELECT id, titulo, ano, genero, destaque FROM filmes W
                     <a href="login.html"><img src="_img/user.png" alt=""></a>
                 </div>
                 <div class="usr-nome">
-                    <p><?= isset($_SESSION['usuario_nome']) ? htmlspecialchars($_SESSION['usuario_nome']) : 'Sem login' ?></p>
+                    <p><?= isset($_SESSION['usuario_nome']) ? htmlspecialchars($_SESSION['usuario_nome']) : 'Visitante' ?></p>
                     <p class="texto" style="font-size: 0.7em; color: #A2A2A2;"><?= isset($_SESSION['usuario_nome']) ? 'Online' : 'Offline' ?></p>
                 </div>
             </div>
