@@ -1,7 +1,22 @@
 <?php
 session_start();
 require_once '_php/filmes.php';
-$filmes = buscarFilmes($pdo);
+
+// Cada seção da página: título => lista de filmes e séries.
+// buscarPorFiltro($pdo, null, 'Drama') traz filmes E séries (tipo null) cujo gênero contém "Drama".
+$secoes = [
+    'Em alta'           => buscarAleatorios($pdo),
+    'Drama'             => buscarPorFiltro($pdo, null, 'Drama'),
+    'Comédia'           => buscarPorFiltro($pdo, null, 'Comédia'),
+    'Crime'             => buscarPorFiltro($pdo, null, 'Crime'),
+    'Ação'              => buscarPorFiltro($pdo, null, 'Ação'),
+    'Aventura'          => buscarPorFiltro($pdo, null, 'Aventura'),
+    'Ficção Científica' => buscarPorFiltro($pdo, null, 'Ficção Científica'),
+    'Suspense'          => buscarPorFiltro($pdo, null, 'Suspense'),
+];
+
+// Esconde as seções que não têm nenhum título
+$secoes = array_filter($secoes);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,10 +59,6 @@ $filmes = buscarFilmes($pdo);
                 </button>
 
                 <button>
-                    <img src="_img/profit.png" alt=""><a href="index.php">Estatísticas</a>
-                </button>
-
-                <button>
                     <img src="_img/info.png" alt=""><a href="index.php">Sobre</a>
                 </button>
             </div>
@@ -66,49 +77,17 @@ $filmes = buscarFilmes($pdo);
 
         <div class="main">
 
-            <!--Filmes-->
-            <div>
-                <h2>Filmes em destaque</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
+            <?php $primeira = true; ?>
+            <?php foreach ($secoes as $titulo => $lista): ?>
+                <div<?= $primeira ? '' : ' style="margin-top: 30px;"' ?>>
+                    <h2><?= htmlspecialchars($titulo) ?></h2>
+                    <div class="filmes-linha">
+                        <?php linhaFilmes($lista); ?>
+                    </div>
                 </div>
-            </div>
+                <?php $primeira = false; ?>
+            <?php endforeach; ?>
 
-            <div style="margin-top: 30px;">
-                <h2>Filmes de Drama</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
-            </div>
-
-            <div style="margin-top: 30px;">
-                <h2>Filmes de Comédia</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
-            </div>
-
-            <!--Séries-->
-            <div style="margin-top: 30px;">
-                <h2>Séries em alta</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
-            </div>
-
-            <div style="margin-top: 30px;">
-                <h2>Séries de Terror</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
-            </div>
-
-            <div style="margin-top: 30px;">
-                <h2>Séries de Investigação</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
-            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

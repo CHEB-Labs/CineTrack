@@ -2,12 +2,14 @@
 session_start();
 require_once '_php/filmes.php';
 
-// Filmes para as linhas de posters
-$filmes = buscarFilmes($pdo);
+$emAlta = buscarAleatorios($pdo);            // filmes e séries misturados
+$filmes = buscarAleatorios($pdo, 'filme');   // só filmes
+$series = buscarAleatorios($pdo, 'serie');   // só séries
 
 // Filmes que têm imagem de destaque (usados no carrossel)
 $destaques = $pdo->query("SELECT id, titulo, ano, genero, destaque FROM filmes WHERE destaque IS NOT NULL AND destaque <> '' ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,11 +51,7 @@ $destaques = $pdo->query("SELECT id, titulo, ano, genero, destaque FROM filmes W
                 </button>
 
                 <button>
-                    <img src="_img/profit.png" alt=""><a href="index.php">Estatísticas</a>
-                </button>
-
-                <button>
-                    <img src="_img/info.png" alt=""><a href="index.php">Sobre</a>
+                    <img src="_img/info.png" alt=""><a href="sobre.php">Sobre</a>
                 </button>
             </div>
 
@@ -81,7 +79,7 @@ $destaques = $pdo->query("SELECT id, titulo, ano, genero, destaque FROM filmes W
                 <div class="carousel-inner">
                     <?php foreach ($destaques as $i => $d): ?>
                         <div class="carousel-item<?= $i === 0 ? ' active' : '' ?>">
-                            <img src="_img/<?= rawurlencode($d['destaque']) ?>" alt="<?= htmlspecialchars($d['titulo']) ?>">
+                            <img src="_img/destaque/<?= rawurlencode($d['destaque']) ?>" alt="<?= htmlspecialchars($d['titulo']) ?>">
                             <a href="filme.php?id=<?= (int)$d['id'] ?>"><img src="_img/shadow.png" class="img-cima" alt=""></a>
 
                             <div class="destaque-info">
@@ -100,25 +98,19 @@ $destaques = $pdo->query("SELECT id, titulo, ano, genero, destaque FROM filmes W
                 </button>
             </div>
 
-            <div style="margin-top: 30px;"> <!--Em alta-->
-                <h2>Em alta agora</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
+            <h2>Em alta agora</h2>
+            <div class="filmes-linha">
+                <?php linhaFilmes($emAlta); ?>
             </div>
 
-            <div style="margin-top: 30px;"> <!--Bem avaliados-->
-                <h2>Bem avaliados</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
+            <h2>Filmes</h2>
+            <div class="filmes-linha">
+                <?php linhaFilmes($filmes); ?>
             </div>
 
-            <div style="margin-top: 30px;"> <!--Popular no Brasil-->
-                <h2>Popular no Brasil</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
+            <h2>Séries</h2>
+            <div class="filmes-linha">
+                <?php linhaFilmes($series); ?>
             </div>
         </div>
     </div>

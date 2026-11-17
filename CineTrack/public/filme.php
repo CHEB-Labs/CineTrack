@@ -13,8 +13,21 @@ if (!$filme) {
     exit;
 }
 
-$filmes = buscarFilmes($pdo);
+// Verifica se o título já está na biblioteca do usuário logado
+$naBiblioteca = false;
+if (isset($_SESSION['usuario_id'])) {
+    $stmt = $pdo->prepare("SELECT 1 FROM biblioteca WHERE usuario_id = ? AND filme_id = ?");
+    $stmt->execute([(int)$_SESSION['usuario_id'], $filme['id']]);
+    $naBiblioteca = (bool)$stmt->fetchColumn();
+}
+
+// Link do trailer: só aceita endereços que começam com http:// ou https://
+$trailer = $filme['trailer'] ?? '';
+$temTrailer = (bool)preg_match('#^https?://#i', $trailer);
+
+$similares = buscarAleatorios($pdo, null, 5, $filme['id']);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,10 +69,6 @@ $filmes = buscarFilmes($pdo);
                 </button>
 
                 <button>
-                    <img src="_img/profit.png" alt=""><a href="index.php">Estatísticas</a>
-                </button>
-
-                <button>
                     <img src="_img/info.png" alt=""><a href="index.php">Sobre</a>
                 </button>
             </div>
@@ -79,7 +88,7 @@ $filmes = buscarFilmes($pdo);
         <div class="main">
 
             <div class="capa">
-                <img src="_img/<?= rawurlencode(!empty($filme['destaque']) ? $filme['destaque'] : 'capa-padrao.png') ?>" alt="<?= htmlspecialchars($filme['titulo']) ?>">
+                <img src="_img/<?= !empty($filme['destaque']) ? 'destaque/' . rawurlencode($filme['destaque']) : 'capa-padrao.png' ?>" alt="<?= htmlspecialchars($filme['titulo']) ?>">
                 <img src="_img/shadow2.png" class="img-cima" alt="">
 
                 <div class="capa-info">
@@ -90,9 +99,20 @@ $filmes = buscarFilmes($pdo);
 
             <div class="div1">
                 <div class="div2">
+                    <form id="form-biblioteca" action="_php/biblioteca_acao.php" method="POST" style="display: none;">
+                        <input type="hidden" name="filme_id" value="<?= (int)$filme['id'] ?>">
+                    </form>
                     <div class="botoes">
-                        <button>Assistir ao trailer</button>
-                        <button style="background-color: transparent; border: solid 1px #ffffff; color: white;">Adicionar a biblioteca</button>
+                        <?php if ($temTrailer): ?>
+                            <button type="button" onclick="window.open(<?= htmlspecialchars(json_encode($trailer), ENT_QUOTES) ?>, '_blank', 'noopener')">Assistir ao trailer</button>
+                        <?php else: ?>
+                            <button type="button" disabled style="opacity: 0.5; cursor: not-allowed;" title="Trailer indisponível">Assistir ao trailer</button>
+                        <?php endif; ?>
+                        <?php if ($naBiblioteca): ?>
+                            <button type="button" disabled style="background-color: transparent; border: solid 1px #ffffff; color: white; opacity: 0.5; cursor: not-allowed;">Na sua biblioteca</button>
+                        <?php else: ?>
+                            <button type="submit" form="form-biblioteca" style="background-color: transparent; border: solid 1px #ffffff; color: white;">Adicionar a biblioteca</button>
+                        <?php endif; ?>
                     </div>
                     <div class="sinopse">
                         <h1>Sinopse</h1>
@@ -183,9 +203,9 @@ $filmes = buscarFilmes($pdo);
             </div>
 
             <div style="margin-top: 30px;">
-                <h1>Filmes similares</h1>
+                <h1>Filmes e Séries similares</h1>
                 <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
+                    <?php linhaFilmes($similares); ?>
                 </div>
             </div>
         </div>

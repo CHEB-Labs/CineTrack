@@ -1,7 +1,22 @@
 <?php
 session_start();
 require_once '_php/filmes.php';
-$filmes = buscarFilmes($pdo);
+
+$logado = isset($_SESSION['usuario_id']);
+$meusFilmes = [];
+
+// Só busca no banco se houver um usuário logado
+if ($logado) {
+    $stmt = $pdo->prepare(
+        "SELECT f.id, f.titulo, f.capa
+         FROM biblioteca b
+         JOIN filmes f ON f.id = b.filme_id
+         WHERE b.usuario_id = ?
+         ORDER BY b.id DESC"
+    );
+    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $meusFilmes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,10 +59,6 @@ $filmes = buscarFilmes($pdo);
                 </button>
 
                 <button>
-                    <img src="_img/profit.png" alt=""><a href="index.php">Estatísticas</a>
-                </button>
-
-                <button>
                     <img src="_img/info.png" alt=""><a href="index.php">Sobre</a>
                 </button>
             </div>
@@ -68,12 +79,20 @@ $filmes = buscarFilmes($pdo);
 
             <div>
                 <h2>Minha Biblioteca</h2>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
-                <div class="filmes-linha">
-                    <?php linhaFilmes($filmes); ?>
-                </div>
+
+                <?php if (!$logado): ?>
+                    <p style="margin-top: 25px; color: #A2A2A2;">Faça <a href="login.html" style="text-decoration: underline;">login</a> para adicionar algo para sua biblioteca.</p>
+
+                <?php elseif (count($meusFilmes) === 0): ?>
+                    <p style="margin-top: 25px; color: #A2A2A2;">Sua biblioteca ainda está vazia. Abra um filme ou série e clique em "Adicionar a biblioteca".</p>
+
+                <?php else: ?>
+                    <?php foreach (array_chunk($meusFilmes, 5) as $linha): ?>
+                        <div class="filmes-linha">
+                            <?php linhaFilmes($linha); ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
