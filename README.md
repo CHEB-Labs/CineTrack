@@ -80,7 +80,7 @@ Movies and series share the same table. The main columns are:
 ```text
 CineTrack/
 ├── CineTrack/
-│   ├── banco.sql
+│   ├── cinetrack.sql
 │   └── public/
 │       ├── _css/
 │       ├── _img/
