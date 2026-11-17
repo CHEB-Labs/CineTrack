@@ -100,8 +100,6 @@ CineTrack/
 │       ├── sobre.php
 │       ├── login.html
 │       └── cadastro.html
-├── docs/
-│   └── screenshots/
 └── README.md
 ```
 
