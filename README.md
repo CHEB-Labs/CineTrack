@@ -86,7 +86,7 @@ CineTrack/
 │       ├── _img/
 │       │   ├── capas/
 │       │   └── destaque/
-│       ├── _js/
+│       |
 │       ├── _php/
 │       │   ├── conexao.php
 │       │   ├── cadastro.php
